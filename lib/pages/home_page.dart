@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test_app/util/dialog_box.dart';
 
 import '../util/todo_tile.dart';
 
@@ -18,10 +19,16 @@ class _HomePageState extends State<HomePage> {
     ["Go to Walk", false],
   ];
 
-  checkBoxChanged(bool? value, int index) {
+  void checkBoxChanged(bool? value, int index) {
     setState(() {
       listToDo[index][1] = !listToDo[index][1];
     });
+  }
+
+  void createNewTask () {
+  showDialog(context: context, builder: (context) {
+    return DialogBox();
+  });
   }
 
   @override
@@ -30,6 +37,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("ToDo"),
         backgroundColor: Colors.blue[200],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue[400],
+        onPressed: createNewTask,
+        child: Icon(Icons.add)
       ),
       backgroundColor: Colors.blue[100],
       body:  ListView.builder(

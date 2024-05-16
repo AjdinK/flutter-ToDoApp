@@ -13,6 +13,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  final _controller = TextEditingController();
+
   List listToDo = [
     ["Make Tutorials", true],
     ["Go to Walk", false],
@@ -25,10 +27,25 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void saveNewTask () {
+
+    setState(() {
+      listToDo.add([
+        _controller.text , false,
+        _controller.clear(),
+      ]);
+    });
+    Navigator.of(context).pop();
+  }
+
   void createNewTask () {
-  showDialog(context: context, builder: (context) {
-    return DialogBox();
-  });
+    showDialog(context: context, builder: (context) {
+      return DialogBox(
+        controller: _controller,
+        onSave: saveNewTask ,
+        onCancel: ()=> Navigator.of(context).pop() ,
+      );
+    });
   }
 
   @override
@@ -39,9 +56,9 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.blue[200],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue[400],
-        onPressed: createNewTask,
-        child: Icon(Icons.add)
+          backgroundColor: Colors.blue[400],
+          onPressed: createNewTask,
+          child: Icon(Icons.add)
       ),
       backgroundColor: Colors.blue[100],
       body:  ListView.builder(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_test_app/data/todo_database.dart';
 import 'package:flutter_test_app/util/dialog_box.dart';
 import 'package:flutter_test_app/util/todo_tile.dart';
+import 'package:hive/hive.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,10 +12,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List todoList = [
-    ["To Gym", false],
-    ["To City", false],
-  ];
+  final _myBox = Hive.box("mybox");
+  TodoDatabase db = TodoDatabase();
+
+  @override
+  void initState() {
+    if (_myBox.get("TODOLIST") == null) {
+      db.createInitData();
+    } else {
+      db.loadDatabase();
+    }
+    super.initState();
+  }
 
   final _controller = TextEditingController();
 
@@ -32,11 +41,12 @@ class _HomePageState extends State<HomePage> {
 
   void saveNewTask() {
     setState(() {
-      todoList.add([
+      db.toDoList.add([
         _controller.text,
         false,
         _controller.clear(),
       ]);
+      db.updateDatabase();
     });
     Navigator.of(context).pop();
   }
@@ -51,19 +61,20 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: Colors.cyanAccent,
       ),
-      backgroundColor: const Color.fromARGB(255, 29, 29, 29),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.cyanAccent,
         onPressed: createNewTask,
         child: const Icon(Icons.add),
       ),
       body: ListView.builder(
-        itemCount: todoList.length,
+        itemCount: db.toDoList.length,
         itemBuilder: (context, index) {
           return TodoTile(
-            taskName: todoList[index][0],
-            taskValue: todoList[index][1],
+            taskName: db.toDoList[index][0],
+            taskValue: db.toDoList[index][1],
             onChange: (value) => checkBoxChanged(value, index),
+            deleteCard: (context) => deleteTask(index),
           );
         },
       ),
@@ -72,7 +83,15 @@ class _HomePageState extends State<HomePage> {
 
   checkBoxChanged(bool? p1, int index) {
     setState(() {
-      todoList[index][1] = !todoList[index][1];
+      db.toDoList[index][1] = !db.toDoList[index][1];
     });
+    db.updateDatabase();
+  }
+
+  void deleteTask(int index) {
+    setState(() {
+      db.toDoList.removeAt(index);
+    });
+    db.updateDatabase();
   }
 }
